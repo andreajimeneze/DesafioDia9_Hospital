@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IPatientRepository extends JpaRepository<Patient, Long> {
@@ -15,4 +16,7 @@ public interface IPatientRepository extends JpaRepository<Patient, Long> {
 
     @Query("SELECT DISTINCT p FROM Patient p LEFT JOIN FETCH p.diagnosis")
     List<Patient> findAllPatientsWithDiagnosis();
+
+    @Query("SELECT COUNT(id) FROM Patient WHERE run = :run")
+    Boolean findByRun(String run);
 }

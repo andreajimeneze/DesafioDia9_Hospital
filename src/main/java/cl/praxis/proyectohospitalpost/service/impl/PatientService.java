@@ -1,56 +1,74 @@
 package cl.praxis.proyectohospitalpost.service.impl;
+
+import cl.praxis.proyectohospitalpost.entity.Diagnosis;
 import cl.praxis.proyectohospitalpost.entity.Patient;
 import cl.praxis.proyectohospitalpost.repository.IDiagnosisRepository;
 import cl.praxis.proyectohospitalpost.repository.IPatientRepository;
 import cl.praxis.proyectohospitalpost.service.IBasedCRUD;
+import cl.praxis.proyectohospitalpost.service.IPatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service("PatientService")
-public class PatientService implements IBasedCRUD<Patient> {
+public class PatientService implements IBasedCRUD<Patient>, IPatientService {
 
     @Autowired
-    private IPatientRepository patientRepository;
-    private IDiagnosisRepository diagnosisRepository;
+    private IPatientRepository patientRepo;
+    @Autowired
+    private IDiagnosisRepository diagnosisRepo;
 
-    @Override
-    public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+    public PatientService(IPatientRepository patientRepo, IDiagnosisRepository diagnosisRepo){
+        this.patientRepo = patientRepo;
+        this.diagnosisRepo = diagnosisRepo;
     }
 
     @Override
-    public Patient getPatientById(Long id) {
-        return patientRepository.findById(id).orElse(null);
+    public List<Patient> getAll() {
+        return patientRepo.findAll();
     }
 
     @Override
-    public Patient insertPatient(Patient patient) {
-        return patientRepository.save(patient);
+    public Patient getById(Long id) {
+        return patientRepo.findById(id).orElse(null);
     }
 
     @Override
-    public Patient updatePatient(Patient patient, Long id) {
-        Patient result = null;
-        if(patient.getId() == id) {
-            result = patientRepository.save(patient);
+    public Patient insert(Patient patient) {
+        return patientRepo.save(patient);
+    }
+
+    @Override
+    public Patient update(Patient patient) {
+        Diagnosis diagnosis = patient.getDiagnosis();
+        if(diagnosis == null)  {
+            return null;
         }
-        return result;
+        return patientRepo.save(patient);
+    }
+
+
+    @Override
+    public void delete(Long id) {
+        Patient patient = getById(id);
+        if(patient != null) {
+            patientRepo.delete(patient);
+        }
     }
 
     @Override
-    public void DeletePatient(Long id) {
-        patientRepository.deleteById(id);
+    public Boolean findBy(String run) {
+        return patientRepo.findByRun(run);
     }
 
     @Override
     public Patient findPatientWithDiagnosis(Long id) {
-        return patientRepository.findPatientWithDiagnosis(id);
+        return patientRepo.findPatientWithDiagnosis(id);
     }
 
     @Override
     public List<Patient> findAllPatientsWithDiagnosis() {
-        return patientRepository.findAllPatientsWithDiagnosis();
+        return patientRepo.findAllPatientsWithDiagnosis();
     }
 }
